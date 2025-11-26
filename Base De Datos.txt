@@ -1,0 +1,70 @@
+-- =========================================
+-- Base de datos: EscuelaDB
+-- Estructura coherente con tus entidades JPA
+-- Profesor (1) ↔ (1) Curso ↔ (N) Alumno
+-- =========================================
+
+DROP DATABASE IF EXISTS EscuelaDB;
+CREATE DATABASE EscuelaDB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE EscuelaDB;
+
+-- =========================================
+-- Tabla: Profesor
+-- =========================================
+CREATE TABLE Profesor (
+    id_profesor BIGINT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    especialidad VARCHAR(100),
+    gmail VARCHAR(150)
+);
+
+-- =========================================
+-- Tabla: Curso
+-- Cada curso tiene un único profesor
+-- Si se borra el profesor, el curso se queda sin asignar
+-- =========================================
+CREATE TABLE Curso (
+    id_curso BIGINT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    aula VARCHAR(50),
+    id_profesor BIGINT UNIQUE,
+    CONSTRAINT fk_curso_profesor FOREIGN KEY (id_profesor)
+        REFERENCES Profesor(id_profesor)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE
+);
+
+-- =========================================
+-- Tabla: Alumno
+-- Muchos alumnos pueden estar en un mismo curso
+-- Si se borra el curso, se borran sus alumnos
+-- =========================================
+CREATE TABLE Alumno (
+    id_alumno BIGINT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    edad INT,
+    id_curso BIGINT,
+    CONSTRAINT fk_alumno_curso FOREIGN KEY (id_curso)
+        REFERENCES Curso(id_curso)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+-- =========================================
+-- Datos de ejemplo
+-- =========================================
+INSERT INTO Profesor (nombre, especialidad, gmail)
+VALUES
+('Ana López', 'Matemáticas', 'ana.lopez@escuela.com'),
+('Juan Pérez', 'Física', 'juan.perez@escuela.com');
+
+INSERT INTO Curso (nombre, aula, id_profesor)
+VALUES
+('Álgebra I', 'Aula 101', 1),
+('Física Básica', 'Aula 202', 2);
+
+INSERT INTO Alumno (nombre, edad, id_curso)
+VALUES
+('Carlos Martínez', 20, 1),
+('Marta Gómez', 21, 1),
+('Lucía Fernández', 19, 2);
